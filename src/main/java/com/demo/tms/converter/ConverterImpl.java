@@ -16,17 +16,36 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * {@code ConverterImpl} is the implementation of the {@link Converter} interface.
+ * It provides methods for converting between entity and DTO (Data Transfer Object)
+ * objects for various entities such as {@link Task}, {@link Comment}, {@link User},
+ * and {@link Role}. The class utilizes the {@link TaskService} to fetch associated
+ * entities during conversions, such as converting a {@link CommentDTO} to a {@link Comment}
+ * entity and linking it to the correct {@link Task}.
+ */
 @Component
 @Slf4j
 public class ConverterImpl implements Converter {
 
     private final TaskService taskService;
 
+    /**
+     * Constructs a {@code ConverterImpl} with the specified {@link TaskService}.
+     *
+     * @param taskService The {@link TaskService} to interact with for task-related conversions.
+     */
     @Autowired
     public ConverterImpl(TaskService taskService) {
         this.taskService = taskService;
     }
 
+    /**
+     * Converts a {@link Task} entity to a {@link TaskDTO}.
+     *
+     * @param task The {@link Task} entity to convert.
+     * @return The corresponding {@link TaskDTO}.
+     */
     @Override
     public TaskDTO convertToTaskDTO(Task task) {
         if (task == null) return null;
@@ -45,6 +64,12 @@ public class ConverterImpl implements Converter {
         return dto;
     }
 
+    /**
+     * Converts a {@link TaskDTO} to a {@link Task} entity.
+     *
+     * @param dto The {@link TaskDTO} to convert.
+     * @return The corresponding {@link Task} entity.
+     */
     @Override
     public Task convertToTask(TaskDTO dto) {
         if (dto == null) return null;
@@ -63,6 +88,12 @@ public class ConverterImpl implements Converter {
         return task;
     }
 
+    /**
+     * Converts a {@link Comment} entity to a {@link CommentDTO}.
+     *
+     * @param comment The {@link Comment} entity to convert.
+     * @return The corresponding {@link CommentDTO}.
+     */
     @Override
     public CommentDTO convertToCommentDTO(Comment comment) {
         if (comment == null) return null;
@@ -75,6 +106,12 @@ public class ConverterImpl implements Converter {
         return dto;
     }
 
+    /**
+     * Converts a {@link CommentDTO} to a {@link Comment} entity.
+     *
+     * @param dto The {@link CommentDTO} to convert.
+     * @return The corresponding {@link Comment} entity.
+     */
     @Override
     public Comment convertToComment(CommentDTO dto) {
         if (dto == null) return null;
@@ -92,6 +129,12 @@ public class ConverterImpl implements Converter {
         return comment;
     }
 
+    /**
+     * Converts a {@link User} entity to a {@link UserDTO}.
+     *
+     * @param user The {@link User} entity to convert.
+     * @return The corresponding {@link UserDTO}.
+     */
     @Override
     public UserDTO convertToUserDTO(User user) {
         if (user == null) return null;
@@ -110,6 +153,12 @@ public class ConverterImpl implements Converter {
         return dto;
     }
 
+    /**
+     * Converts a {@link UserDTO} to a {@link User} entity.
+     *
+     * @param dto The {@link UserDTO} to convert.
+     * @return The corresponding {@link User} entity.
+     */
     @Override
     public User convertToUser(UserDTO dto) {
         if (dto == null) return null;
@@ -131,6 +180,12 @@ public class ConverterImpl implements Converter {
         return user;
     }
 
+    /**
+     * Converts a {@link Role} entity to a {@link RoleDTO}.
+     *
+     * @param role The {@link Role} entity to convert.
+     * @return The corresponding {@link RoleDTO}.
+     */
     @Override
     public RoleDTO convertToRoleDTO(Role role) {
         if (role == null) return null;
@@ -141,6 +196,12 @@ public class ConverterImpl implements Converter {
         return dto;
     }
 
+    /**
+     * Converts a {@link RoleDTO} to a {@link Role} entity.
+     *
+     * @param dto The {@link RoleDTO} to convert.
+     * @return The corresponding {@link Role} entity.
+     */
     @Override
     public Role convertToRole(RoleDTO dto) {
         if (dto == null) return null;
@@ -151,7 +212,12 @@ public class ConverterImpl implements Converter {
         return role;
     }
 
-    // Helper methods to convert from Long IDs to minimal entity objects.
+    /**
+     * Converts a {@link Long} userId to a {@link User} entity.
+     *
+     * @param userId The ID of the user.
+     * @return The corresponding {@link User} entity.
+     */
     public User convertToUser(Long userId) {
         if (userId == null) return null;
         User user = new User();
@@ -159,6 +225,12 @@ public class ConverterImpl implements Converter {
         return user;
     }
 
+    /**
+     * Converts a {@link Long} taskId to a {@link Task} entity.
+     *
+     * @param taskId The ID of the task.
+     * @return The corresponding {@link Task} entity.
+     */
     public Task convertToTask(Long taskId) {
         if (taskId == null) return null;
         Task task = new Task();
@@ -166,6 +238,12 @@ public class ConverterImpl implements Converter {
         return task;
     }
 
+    /**
+     * Converts a {@link Long} roleId to a {@link Role} entity.
+     *
+     * @param roleId The ID of the role.
+     * @return The corresponding {@link Role} entity.
+     */
     public Role convertToRole(Long roleId) {
         if (roleId == null) return null;
         Role role = new Role();
@@ -173,6 +251,12 @@ public class ConverterImpl implements Converter {
         return role;
     }
 
+    /**
+     * Converts a {@link Long} commentId to a {@link Comment} entity.
+     *
+     * @param commentId The ID of the comment.
+     * @return The corresponding {@link Comment} entity.
+     */
     public Comment convertToComment(Long commentId) {
         if (commentId == null) return null;
         Comment comment = new Comment();

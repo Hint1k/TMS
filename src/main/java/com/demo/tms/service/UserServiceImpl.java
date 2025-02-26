@@ -11,6 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * {@code UserServiceImpl} is the implementation of the {@link UserService} interface.
+ * <p>
+ * This service handles business logic related to {@link User} entities, including operations such as
+ * saving, updating, deleting, and retrieving users. It also ensures that passwords are encoded
+ * before being saved to the database.
+ * </p>
+ */
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -18,12 +26,24 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Constructs a new {@code UserServiceImpl} with the specified repositories and password encoder.
+     *
+     * @param userRepository  the {@link UserRepository} to interact with user data
+     * @param passwordEncoder the {@link PasswordEncoder} to encode user passwords
+     */
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Saves a new user. The user's password is encoded before saving.
+     *
+     * @param user the {@link User} entity to be saved
+     * @return the saved {@link User} entity
+     */
     @Override
     @Transactional
     public User saveUser(User user) {
@@ -33,6 +53,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Updates an existing user. If the user does not exist, an exception is thrown.
+     * The user's password is encoded before saving.
+     *
+     * @param userId      the ID of the user to be updated
+     * @param updatedUser the updated {@link User} entity
+     * @return the updated {@link User} entity
+     * @throws ResourceNotFoundException if the user with the specified ID is not found
+     */
     @Override
     @Transactional
     public User updateUser(Long userId, User updatedUser) {
@@ -54,6 +83,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Deletes a user by its ID.
+     *
+     * @param userId the ID of the user to be deleted
+     * @return {@code true} if the user was successfully deleted, otherwise {@code false}
+     */
     @Override
     @Transactional
     public boolean deleteUser(Long userId) {
@@ -65,12 +100,25 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    /**
+     * Retrieves a user by its ID.
+     *
+     * @param userId the ID of the user to retrieve
+     * @return the {@link User} entity with the specified ID
+     * @throws ResourceNotFoundException if the user is not found
+     */
     @Override
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    /**
+     * Retrieves all users with pagination.
+     *
+     * @param pageable the pagination information
+     * @return a {@link Page} of {@link User} entities
+     */
     @Override
     @Transactional(readOnly = true)
     public Page<User> getAllUsers(Pageable pageable) {

@@ -21,6 +21,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * {@code SecurityConfig} configures the security settings for the application.
+ * This class customizes authentication, authorization, and the security filter chain,
+ * including JWT authentication and role-based access control.
+ */
 @Configuration
 @EnableWebSecurity
 @Slf4j
@@ -29,23 +34,47 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
+    /**
+     * Constructs the {@code SecurityConfig} with the given dependencies.
+     *
+     * @param userRepository The repository for accessing user data.
+     * @param jwtService The service used for JWT-related operations.
+     */
     @Autowired
     public SecurityConfig(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
 
+    /**
+     * Bean for {@link PasswordEncoder} that uses BCrypt hashing algorithm.
+     *
+     * @return The password encoder.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Bean for {@link UserDetailsService} that loads user-specific data.
+     *
+     * @return The custom user details service.
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService(userRepository);
     }
 
-    @Bean // forcing Spring Security to accept my custom UserDetailsService class
+    /**
+     * Bean for {@link DaoAuthenticationProvider} which is used for authenticating users
+     * against the {@link UserDetailsService}.
+     *
+     * @param userDetailsService The custom user details service.
+     * @param passwordEncoder The password encoder to use.
+     * @return The authentication provider.
+     */
+    @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService,
                                                                PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -54,6 +83,14 @@ public class SecurityConfig {
         return provider;
     }
 
+    /**
+     * Bean for {@link AuthenticationManager} that handles authentication
+     * by using the configured authentication provider.
+     *
+     * @param http The {@link HttpSecurity} object for configuring security.
+     * @param authProvider The custom authentication provider.
+     * @return The authentication manager.
+     */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, DaoAuthenticationProvider authProvider) {
         try {
@@ -72,15 +109,24 @@ public class SecurityConfig {
         }
     }
 
+    /**
+     * Configures the security filter chain for the application.
+     * This method sets up JWT authentication, role-based access control,
+     * and custom authorization for tasks and comments based on user roles.
+     *
+     * @param http The {@link HttpSecurity} object for configuring security.
+     * @return The configured {@link SecurityFilterChain}.
+     * @throws RuntimeException If an error occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         try {
             http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests((authorize) -> authorize
-                            .requestMatchers("/auth/login","/v3/api-docs/**", "/swagger-ui/**",
+                            .requestMatchers("/auth/login", "/v3/api-docs/**", "/swagger-ui/**",
                                     "/swagger-ui.html", "/").permitAll()
                             .requestMatchers("/api/users/**", "/api/roles/**", "/api/roles", "/api/users")
-                                    .hasRole("ADMIN")
+                            .hasRole("ADMIN")
                             .requestMatchers(HttpMethod.GET, "/api/tasks", "/api/comments").hasRole("ADMIN")
                             .requestMatchers((request) ->
                                     isTaskOrCommentRelated(request.getRequestURI()))
@@ -107,12 +153,25 @@ public class SecurityConfig {
         }
     }
 
+    /**
+     * Checks if the given path is related to tasks or comments.
+     *
+     * @param path The request path.
+     * @return {@code true} if the path relates to tasks or comments, {@code false} otherwise.
+     */
     private boolean isTaskOrCommentRelated(String path) {
         return path.matches("/tasks/\\d+/.*") || path.matches("/comments/task/\\d+/.*");
     }
 
-
-    // Helper method to handle authorization decision
+    /**
+     * Helper method to handle authorization decision based on user ID, request path,
+     * and HTTP method.
+     *
+     * @param userId The ID of the authenticated user.
+     * @param path The request path.
+     * @param method The HTTP method of the request.
+     * @return The {@link AuthorizationDecision} representing the access decision.
+     */
     private AuthorizationDecision authorizeTaskOrCommentAccess(Long userId, String path, String method) {
         Long taskId = extractTaskIdFromPath(path);
 
@@ -145,7 +204,12 @@ public class SecurityConfig {
         return new AuthorizationDecision(false);
     }
 
-    // helper method to extract from Path
+    /**
+     * Extracts the task ID from the given request path.
+     *
+     * @param path The request path.
+     * @return The extracted task ID, or {@code null} if no valid task ID is found.
+     */
     private Long extractTaskIdFromPath(String path) {
         String[] parts = path.split("/");
         for (int i = 0; i < parts.length; i++) {
